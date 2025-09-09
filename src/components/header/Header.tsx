@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useTheme } from 'theme/ThemeProvider'
+import { useState } from 'react';
+import { useTheme } from 'theme/theme-context'
 
 export const Header: React.FC = () => {
     const { mode, toggleMode } = useTheme();

@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Presentazione: React.FC = () => {
     return (
         <section id="chi-siamo" className="section container">

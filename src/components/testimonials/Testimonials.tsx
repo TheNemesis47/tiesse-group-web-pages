@@ -1,14 +1,6 @@
 import type { FC } from 'react';
-
-type Review = { id: string; name: string; stars: 1|2|3|4|5; text: string; avatar?: string };
-
-const REVIEWS: Review[] = [
-    { id: 'r1', name: 'Chiara R.', stars: 5, text: 'Percorso concreto. Ho cambiato approccio al lavoro in 3 mesi.' },
-    { id: 'r2', name: 'Luca M.',   stars: 5, text: 'Community fortissima e mentor preparati. Consigliato.' },
-    { id: 'r3', name: 'Sara P.',   stars: 4, text: 'Academy chiara e pratica. Ho trovato nuovi clienti.' },
-    { id: 'r4', name: 'Marco D.',  stars: 5, text: 'Incubazione ottima: da idea a prodotto in tempi stretti.' },
-    { id: 'r5', name: 'Elena S.',  stars: 5, text: 'Sales Bootcamp top: pipeline e KPI, ora vendo con metodo.' },
-];
+// Usa l'alias corretto "@", già configurato in tsconfig.app.json
+import { REVIEWS, type Review } from '@/data/reviews';
 
 const Stars: FC<{ n: number }> = ({ n }) => (
     <div className="stars" aria-label={`${n} stelle`}>
@@ -30,14 +22,12 @@ const Card: FC<{ r: Review }> = ({ r }) => (
 );
 
 export const Testimonials: FC = () => {
-    // triplica per un loop fluido
+    // triplica per loop continuo
     const items = [...REVIEWS, ...REVIEWS, ...REVIEWS];
 
     return (
         <section className="section container" aria-labelledby="testimonials-title">
             <h2 id="testimonials-title" className="section-title">Testimonianze</h2>
-
-            {/* allow-motion forza l’animazione anche se il sistema ha reduce-motion */}
             <div className="marquee allow-motion" aria-label="Recensioni clienti" role="list">
                 <div className="marquee-track">
                     {items.map((r, idx) => <Card key={`${r.id}-${idx}`} r={r} />)}

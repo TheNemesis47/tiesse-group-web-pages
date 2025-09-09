@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Hero: React.FC = () => {
     return (
         <section className="hero" aria-label="Copertina" role="img">
