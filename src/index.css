@@ -209,13 +209,13 @@ html { scroll-behavior: smooth; }
 }
 .hero-bg {
   position: absolute; inset: 0;
-  background: center/cover no-repeat url('/assets/skyline@1920.jpg');
+  background: center/cover no-repeat url('../public/assets/skyline@2560.jpg');
 }
 @media (min-width: 1200px) {
-  .hero-bg { background-image: url('/assets/skyline@1920.jpg'); }
+  .hero-bg { background-image: url('../public/assets/skyline@1920.jpg'); }
 }
 @media (max-width: 600px) {
-  .hero-bg { background-image: url('/assets/skyline@1280.jpg'); }
+  .hero-bg { background-image: url('../public/assets/skyline@1280.jpg'); }
 }
 .hero-overlay {
   position: absolute; inset: 0;
@@ -296,15 +296,41 @@ html { scroll-behavior: smooth; }
 .review-text { margin-top: .5rem; color: var(--color-text); }
 .review-name { margin-top: .3rem; color: var(--color-muted); }
 
-/* --- Form contatti --- */
-.form { display: grid; gap: .8rem; max-width: 720px; }
-.field { display: grid; gap: .3rem; }
+
+/* Contattaci — centrato a schermo */
+.contact-wrap {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 4vw, 3rem) 1rem;
+  background:
+          radial-gradient(1200px 600px at 50% -10%, color-mix(in oklab, var(--color-primary), transparent 90%), transparent 70%),
+          radial-gradient(800px 400px at 90% 10%, color-mix(in oklab, var(--color-accent), transparent 90%), transparent 70%);
+}
+.contact-card {
+  width: min(92vw, 720px);
+  background: color-mix(in oklab, var(--color-surface), transparent 6%);
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid color-mix(in oklab, var(--color-primary), transparent 70%);
+  box-shadow: var(--shadow-1);
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+.contact-title { text-align: center; font-size: clamp(1.6rem, 4vw, 2rem); }
+.contact-sub   { text-align: center; color: var(--color-muted); margin-top: .2rem; margin-bottom: .8rem; }
+.btn-wide { width: 100%; justify-self: stretch; }
+
+/* Campi form (riuso del tuo stile base) */
+.form { display: grid; gap: .9rem; }
+.field { display: grid; gap: .35rem; }
+label { font-weight: 600; }
 input, textarea {
   background: color-mix(in oklab, var(--color-surface), transparent 10%);
-  color: var(--color-text); border: var(--hairline);
-  border-radius: .7rem; padding: .7rem .9rem;
+  color: var(--color-text);
+  border: var(--hairline);
+  border-radius: .7rem;
+  padding: .75rem .95rem;
 }
 input:focus, textarea:focus { outline: var(--ring); }
-.form-msg { margin-top: .4rem; }
-.form-msg.ok { color: #22c55e; }
+.form-msg { margin-top: .6rem; text-align: center; }
+.form-msg.ok  { color: #22c55e; }
 .form-msg.err { color: #ef4444; }
