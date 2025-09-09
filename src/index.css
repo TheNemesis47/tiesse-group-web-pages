@@ -266,35 +266,57 @@ html { scroll-behavior: smooth; }
   color: var(--color-primary); font-weight: 700; cursor: pointer;
 }
 
-/* --- Testimonianze marquee --- */
-.marquee { overflow: hidden; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+/* --- Marquee Testimonianze --- */
+:root { --marquee-speed: 38s; } /* aumenta/diminuisci per cambiare velocità */
+
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
 .marquee-track {
-  display: flex; align-items: stretch; gap: .8rem; padding-block: .4rem;
-  animation: marquee 40s linear infinite;
+  display: inline-flex;          /* inline per usare width:max-content */
+  gap: .8rem;
+  padding-block: .4rem;
+  width: max-content;            /* largo quanto il contenuto */
+  will-change: transform;
+  animation: marquee var(--marquee-speed) linear infinite;
 }
+
+/* movimento continuo GPU-friendly */
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); } /* grazie al duplicato */
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); } /* con lista duplicata 2x/3x */
 }
+
+/* Se l’utente ha ridotto le animazioni, fermiamo... */
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
+  /* ...ma se vogliamo forzare per questa sezione, usiamo una classe wrapper */
+  .marquee.allow-motion .marquee-track { animation: marquee var(--marquee-speed) linear infinite; }
 }
+
+/* Card testimonianze (puoi lasciare le tue) */
 .review-card {
   min-width: clamp(240px, 70vw, 320px);
   background: color-mix(in oklab, var(--color-surface), transparent 6%);
-  border: var(--hairline); border-radius: var(--radius);
-  padding: .9rem; box-shadow: var(--shadow-1);
+  border: var(--hairline);
+  border-radius: var(--radius);
+  padding: .9rem;
+  box-shadow: var(--shadow-1);
 }
 .avatar {
   inline-size: 40px; block-size: 40px; border-radius: 50%;
   display: grid; place-items: center;
-  background: color-mix(in oklab, var(--color-primary), transparent 70%); color: white; font-weight: 800;
+  background: color-mix(in oklab, var(--color-primary), transparent 70%);
+  color: white; font-weight: 800;
 }
 .stars { display: flex; gap: 4px; margin-top: .3rem; }
 .star { width: 18px; height: 18px; fill: none; stroke: var(--color-muted); }
 .star.fill { fill: var(--color-accent); stroke: var(--color-accent); }
 .review-text { margin-top: .5rem; color: var(--color-text); }
 .review-name { margin-top: .3rem; color: var(--color-muted); }
+
 
 
 /* Contattaci — centrato a schermo */

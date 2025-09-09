@@ -4,7 +4,7 @@
     "strict": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022"],                    // <-- niente DOM qui
+    "lib": ["ES2022"],               // niente DOM qui
     "types": ["@cloudflare/workers-types"],
     "skipLibCheck": true
   },
