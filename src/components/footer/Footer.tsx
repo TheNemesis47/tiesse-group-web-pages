@@ -1,7 +1,37 @@
-import type { FC } from 'react';
+import { useEffect, useState, type FC } from "react";
+import { Modal } from "@/components/Modal";
+
+async function fetchHtmlSafe(path: string): Promise<string> {
+    try {
+        const res = await fetch(path, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        // Usiamo HTML così puoi formattare (h2, p, ul, ecc.)
+        return await res.text();
+    } catch {
+        return "<p>Contenuto non disponibile al momento.</p>";
+    }
+}
 
 export const Footer: FC = () => {
     const year = new Date().getFullYear();
+
+    const [openPrivacy, setOpenPrivacy] = useState(false);
+    const [openTerms, setOpenTerms] = useState(false);
+    const [privacyHtml, setPrivacyHtml] = useState<string>("");
+    const [termsHtml, setTermsHtml] = useState<string>("");
+
+    // Carica i testi quando il modale viene aperto (lazy)
+    useEffect(() => {
+        if (openPrivacy && !privacyHtml) {
+            fetchHtmlSafe("/data/privacy.html").then(setPrivacyHtml);
+        }
+    }, [openPrivacy, privacyHtml]);
+
+    useEffect(() => {
+        if (openTerms && !termsHtml) {
+            fetchHtmlSafe("/data/terms.html").then(setTermsHtml);
+        }
+    }, [openTerms, termsHtml]);
 
     return (
         <footer className="site-footer" role="contentinfo">
@@ -9,7 +39,6 @@ export const Footer: FC = () => {
                 {/* Brand + descrizione */}
                 <div className="footer-brand">
                     <a className="brand" href="/" aria-label="Homepage">
-                        {/* Usa lo stesso logo dell'header; aggiorna il path se diverso */}
                         <img
                             src="/icon/favicon.svg"
                             alt=""
@@ -20,11 +49,11 @@ export const Footer: FC = () => {
                         <span className="brand-text">Tiesse Group</span>
                     </a>
                     <p className="footer-desc">
-                        Formazione, leadership e impresa. Dal 2014, costruiamo percorsi concreti
-                        per trasformare potenziale in risultati reali.
+                        Formazione, leadership e impresa. Dal 2014, costruiamo percorsi
+                        concreti per trasformare potenziale in risultati reali.
                     </p>
 
-                    {/* Social (placeholders: sostituisci href) */}
+                    {/* Social */}
                     <div className="footer-social" aria-label="Social">
                         <a className="social-link" href="https://instagram.com/" target="_blank" rel="noreferrer" aria-label="Instagram">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 5a5 5 0 1 0 .001 10.001A5 5 0 0 0 12 7zm6.5-.25a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Z"/></svg>
@@ -51,11 +80,18 @@ export const Footer: FC = () => {
 
                     <div className="footer-col">
                         <h3 className="footer-title">Legale</h3>
-                        {/* Punta a pagine reali quando le crei (public/privacy.html, ecc.) */}
                         <ul>
-                            <li><a href="/privacy">Privacy</a></li>
-                            <li><a href="/termini">Termini</a></li>
-                            <li><a href="/cookie">Cookie</a></li>
+                            {/* BOTTONI → aprono i modal */}
+                            <li>
+                                <button type="button" className="link-btn link-inline" onClick={() => setOpenPrivacy(true)}>
+                                    Privacy
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" className="link-btn link-inline" onClick={() => setOpenTerms(true)}>
+                                    Termini
+                                </button>
+                            </li>
                         </ul>
                     </div>
 
@@ -77,6 +113,22 @@ export const Footer: FC = () => {
                     <a href="#top" className="to-top" aria-label="Torna all'inizio">Torna su ↑</a>
                 </div>
             </div>
+
+            {/* MODALS */}
+            <Modal open={openPrivacy} onClose={() => setOpenPrivacy(false)} title="Informativa Privacy" wide>
+                <div
+                    className="legal-content"
+                    // I testi sono file HTML sotto /public/data/
+                    dangerouslySetInnerHTML={{ __html: privacyHtml }}
+                />
+            </Modal>
+
+            <Modal open={openTerms} onClose={() => setOpenTerms(false)} title="Termini e Condizioni" wide>
+                <div
+                    className="legal-content"
+                    dangerouslySetInnerHTML={{ __html: termsHtml }}
+                />
+            </Modal>
         </footer>
     );
 };

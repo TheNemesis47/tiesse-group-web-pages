@@ -8,7 +8,7 @@ interface Env {
 }
 
 const cors = {
-    "Access-Control-Allow-Origin": "*", // restringi al tuo dominio se necessario
+    "Access-Control-Allow-Origin": "*", // restringi al tuo dominio se vuoi
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, X-CSRF-Token",
     "Cache-Control": "no-store",
@@ -21,6 +21,7 @@ export const onRequestOptions: PagesFunction = async () =>
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     try {
         const body = (await request.json()) as { name: string; email: string; message: string };
+
         const name = body?.name?.trim();
         const email = body?.email?.trim();
         const message = body?.message?.trim();
@@ -31,7 +32,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             });
         }
 
-        // CSRF (double-submit: cookie + header)
+        // CSRF double-submit (cookie HttpOnly + header X-CSRF-Token)
         const cookies = getCookies(request);
         const csrfCookie = cookies['csrf_token'] ?? '';
         const csrfHeader = request.headers.get('X-CSRF-Token') ?? '';
@@ -41,6 +42,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             });
         }
 
+        // Invia con Resend se configurato
         if (env.RESEND_API_KEY && env.CONTACT_TO && env.CONTACT_FROM) {
             const res = await fetch('https://api.resend.com/emails', {
                 method: 'POST',
@@ -69,6 +71,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             });
         }
 
+        // Non configurato
         return new Response(JSON.stringify({ error: 'Email service not configured' }), {
             status: 501, headers: { 'content-type': 'application/json', ...cors }
         });
