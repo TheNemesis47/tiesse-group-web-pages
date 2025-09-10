@@ -5,9 +5,8 @@ export const Contact: FC = () => {
     const [msg, setMsg] = useState("");
     const [csrf, setCsrf] = useState<string>("");
 
-    // 1) Prendi un token CSRF e imposta un cookie HttpOnly lato server
     useEffect(() => {
-        fetch("/api/csrf", { method: "GET" })
+        fetch("/api/csrf", { method: "GET", cache: "no-store", credentials: "same-origin" })
             .then((r) => r.json())
             .then((d) => setCsrf(d?.token ?? ""))
             .catch(() => setCsrf(""));
@@ -24,21 +23,18 @@ export const Contact: FC = () => {
         };
 
         if (!payload.name || !payload.email || !payload.message) {
-            setState("err");
-            setMsg("Compila tutti i campi.");
-            return;
+            setState("err"); setMsg("Compila tutti i campi."); return;
         }
 
-        // Se per qualche motivo il token non è ancora arrivato, riprova a prenderlo al volo
         let token = csrf;
         if (!token) {
             try {
-                const r = await fetch("/api/csrf");
+                const r = await fetch("/api/csrf", { cache: "no-store", credentials: "same-origin" });
                 const d = await r.json();
                 token = d?.token ?? "";
                 setCsrf(token);
             } catch {
-                // prosegui comunque: il server rifiuterà con 403 se manca il token valido
+                // il server risponderà 403 senza token valido
             }
         }
 
@@ -48,23 +44,60 @@ export const Contact: FC = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-Token": token || "", // ← USA il token → niente warning ESLint/TS
+                    "X-CSRF-Token": token || "",
                 },
                 body: JSON.stringify(payload),
+                cache: "no-store",
+                credentials: "same-origin",
             });
 
-            if (res.ok) {
-                setState("ok");
-                setMsg("Messaggio inviato! Ti risponderemo presto.");
-                e.currentTarget.reset();
-            } else {
-                const t = await res.text();
-                console.warn("contact error", t);
+            type ContactOk = { ok: true };
+            type ContactErr = { error: string; detail?: string };
+
+            const isContactErr = (x: unknown): x is ContactErr => {
+                if (typeof x !== "object" || x === null) return false;
+                const r = x as Record<string, unknown>;
+                return typeof r.error === "string";
+            };
+
+            const isContactOk = (x: unknown): x is ContactOk => {
+                if (typeof x !== "object" || x === null) return false;
+                const r = x as Record<string, unknown>;
+                return r.ok === true;
+            };
+
+            let data: unknown = null;
+            try { data = await res.json(); } catch { /* non è JSON, lascio null */ }
+
+            if (!res.ok || isContactErr(data)) {
+                const d = isContactErr(data) ? data : undefined;
+                console.warn("contact server error:", { status: res.status, data });
                 setState("err");
-                setMsg("Invio fallito. Riprova più tardi.");
+                setMsg(
+                    d?.detail
+                        ? `Errore: ${d.error} — ${d.detail.substring(0, 140)}`
+                        : d?.error
+                            ? `Errore: ${d.error}`
+                            : `Invio fallito (HTTP ${res.status}). Riprova più tardi.`
+                );
+                return;
             }
+
+            if (!isContactOk(data)) {
+                console.debug("contact: HTTP ok ma body inatteso", data);
+            }
+
+            setState("ok");
+            setMsg("Messaggio inviato! Ti risponderemo presto.");
+            e.currentTarget.reset();
+
+
+            setState("ok");
+            setMsg("Messaggio inviato! Ti risponderemo presto.");
+            e.currentTarget.reset();
         } catch (err) {
-            console.error(err);
+            // Qui entriamo solo per errori REALI di rete/JS
+            console.error("contact fetch failed:", err);
             setState("err");
             setMsg("Errore di rete.");
         }
