@@ -1,5 +1,5 @@
 import { useEffect, useState, type FC } from "react";
-import { Modal } from "@/components/Modal";
+import { Modal } from "@/components/modal/Modal";
 
 async function fetchHtmlSafe(path: string): Promise<string> {
     try {
