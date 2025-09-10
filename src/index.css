@@ -231,10 +231,10 @@ p  { color: var(--color-muted); }
 }
 .hero-bg {
   position: absolute; inset: 0;
-  background: center/cover no-repeat url('public/assets/skyline@2560.jpg');
+  background: center/cover no-repeat url('../public/assets/skyline@2560.jpg');
 }
-@media (min-width: 1200px) { .hero-bg { background-image: url('public/assets/skyline@1920.jpg'); } }
-@media (max-width: 600px)  { .hero-bg { background-image: url('public/assets/skyline@1280.jpg'); } }
+@media (min-width: 1200px) { .hero-bg { background-image: url('../public/assets/skyline@1920.jpg'); } }
+@media (max-width: 600px)  { .hero-bg { background-image: url('../public/assets/skyline@1280.jpg'); } }
 
 .hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.55)); }
 .hero-content { position: relative; text-align: center; display: grid; gap: 1rem; }

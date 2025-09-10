@@ -1,12 +1,15 @@
 // functions/api/contact.ts
 import type { PagesFunction } from '@cloudflare/workers-types';
+import { getCookies } from "../_utils/cookies";
 
-// Tipi delle variabili d'ambiente disponibili in Cloudflare Pages
 interface Env {
     RESEND_API_KEY: string;
     CONTACT_TO: string;
     CONTACT_FROM: string;
 }
+
+
+
 
 // Pages Function per POST /api/contact
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
@@ -21,6 +24,17 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             return new Response(JSON.stringify({ error: 'Bad Request' }), {
                 status: 400,
                 headers: { 'content-type': 'application/json' }
+            });
+        }
+
+        const cookies = getCookies(request);
+        const csrfCookie = cookies["csrf_token"] ?? "";
+        const csrfHeader = request.headers.get("X-CSRF-Token") ?? "";
+
+        if (!csrfCookie || csrfCookie !== csrfHeader) {
+            return new Response(JSON.stringify({ error: "Invalid CSRF token" }), {
+                status: 403,
+                headers: { "content-type": "application/json" },
             });
         }
 
